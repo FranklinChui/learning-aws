@@ -1,0 +1,122 @@
+
+### Powershell
+
+New-IAMUser -UserName Bishop
+Get-IAMUser -UserName Bishop
+
+Add-IAMUserToGroup -UserName Bishop -GroupName Group1
+Get-IAMGroup -GroupName Group1
+
+New-IAMLoginProfile -UserName Bishop \
+-Password "asdf!@#234" \
+-PasswordResetRequired $true
+
+remove-iamLoginprofile -username mbishop
+
+###
+New-IAMGroup -GroupName Group4
+Get-IAMGroup -GroupName Group4
+
+Add-IAMUserToGroup -Username Bishop -GroupName Group4
+Get-IAMGroup
+Add-IAMUserToGroup -UserName jgold -GroupName Group4
+Get-IAMGroup
+(Get-IAMGroup -GroupName Group4).Users | Select Username
+
+
+###
+Get-IAMPolicies | where-Object PolicyName -like "*S3*" | Format-Table -Property PolicyName, Arn	
+
+Get-IAMUser -Username 'CBlackwell; | Register-IAMUserPolicy -PolicyArn arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+
+###
+Get-Ec2VPC
+New-Ec2NetworkAcl -VpcID vpc-71a234
+New-Ec2Tag -ResourceTag acl-077022irhkajsf8 -Tag @{Key="Name"; Value="NetALC2"}
+New-EC2NetworkAclEntry \
+  -NetworkAclID acl-077kajs8ua98f \
+  -Egress $false \
+  -RuleNumber 100 \
+  -Protocol 6 \
+  -PortRange_From 443 \
+  -PortRange 443 \
+  -CidrBlock 199.126.77.0/24 \
+  -RuleAction allow
+
+###
+Get-Ec2VPC
+New-Ec2SecurityGropu \
+  -GroupName SecGroup2 -description "SecGroup2" -VpcID vpc-123jkl132
+New-Ec2Tag -ResourceId sg-12312l3kj1432 -Tag @{key="Name",Value="SecurityGroup2"}
+
+$rule1 = @{IpProtocol="tcp"; FromtPort="22"; ToPort="22"; IpRange="199.126.129.0/24"}
+Grant-Ec2SecurityGroupIngress -GroupId sg-12312l3kj1432 -IpPermission $rule1
+
+
+### S3
+initialize-awsdefaults -region ca-central-1
+New-S3Bucket -BucketName bucket669900 -Region us-east-1
+Remove-S3Bucket -BucketName bucket669900
+Get-S3Bucket
+
+###
+Write-S3Object -BucketName bucket446388 \
+  -File d:\licensekey.txt \
+  -Key Projects/licensekey.txt
+
+Write-S3Object -BucketName bucket446388 \
+  -Folder d:\samplefiles\ \
+  -Recurse \
+  -KeyPrefix "HQ"  # << target folder name
+
+Get-S3Object -BucketName bucket446388
+Get-S3Object -BucketName bucket446388 | select key
+
+
+
+
+
+  
+### EC2
+GetEc2Subnet
+Get-Ec2SecurityGroup
+Get-Ec2Image
+
+New-Ec2Instance \
+  -ImageId ami-123123123 \
+  -MinCount 1 \
+  -MaxCount 1 \
+  -KeyName WindowsKeyPair2
+  -SecurityGroupId sg-12423lkjjk \
+  -InstanceType m1.small \
+  -SubnetId subnet-12412312
+  
+New-EC2Tag -ResourceId i-0d234234234s \
+-Tag @{Key="Name"; Value="WinSrv2019-2"}  
+
+
+### Create image
+New-EC2Image \
+  -InstanceId i-0046e8521c975b673 \
+  -Name "centos7-img" \
+  -Description "test image created via powershell" \
+  -NoReboot $true
+  
+Get-Ec2Image -owner self
+
+### RDS
+
+$parameters = @{
+  DBInstanceIdentifier = 'SQL-App1'
+  Engine = 'sqlserver-ex'
+  DBInstanceClass = 'db.t2.micro'
+  MasterUsername = 'cblackwell'
+  MasterUserPassword = 'Pa$$w0rdABC123'
+  AllocatedStorage = 20
+  PubliclyAccessible = $true
+}
+$instance = New-RDSDBInstance @parameters
+$instance
+
+Get-RDSDBInstance | Select DBInstanceIdentifier, DBName, Engine, EngineVersion
